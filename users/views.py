@@ -3,8 +3,8 @@ from rest_framework.generics import (
     UpdateAPIView,
     RetrieveUpdateDestroyAPIView,
 )
-from .models import User
-from .serializers import UserSerializer, UpdateRoleSerializers
+from .models import User,UserProfile
+from .serializers import UserSerializer, UpdateRoleSerializers,UserProfileSerializer
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
@@ -112,6 +112,31 @@ class UserUpdateView(RetrieveUpdateDestroyAPIView):
             "status": True,
         }
         return Response(data, status=status.HTTP_204_NO_CONTENT)
+
+@extend_schema(tags=["Users"])
+class UserProfileUpdateAPIView(UpdateAPIView):
+    queryset = UserProfile.objects.all()
+    serializer_class = UserProfileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        user = self.request.user
+        return user.user_profile
+
+
+    def update(self, request, *args, **kwargs):
+        response = super().update(request, *args, **kwargs)
+        data = {
+            "msg": "User profile updated successfully",
+            "data": response.data,
+            "status": True,
+        }
+        return Response(data, status=status.HTTP_200_OK)
+
+
+
+
+
 
 
 @extend_schema(tags=["Users"])

@@ -5,11 +5,13 @@ from .views import (
     AdminUpdateRoleView,
     CustomTokenObtainPairView,
     CustomTokenRefreshView,
+    UserProfileUpdateAPIView
 )
 
 urlpatterns = [
     path("register/", UserRegistrationView.as_view(), name="register"),
     path("me/", UserUpdateView.as_view(), name="update"),
+    path("profile/", UserProfileUpdateAPIView.as_view(), name="profile"),
     path(
         "update-role/<int:user_id>/", AdminUpdateRoleView.as_view(), name="update-role"
     ),

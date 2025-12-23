@@ -27,7 +27,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE,related_name="user_profile")
     other_name = models.CharField(max_length=255)
     date_of_birth = models.DateField()
     phone_number = models.CharField(max_length=10)
