@@ -3,6 +3,8 @@ from .views import (
     UserRegistrationView,
     UserUpdateView,
     AdminUpdateRoleView,
+    CustomTokenObtainPairView,
+    CustomTokenRefreshView,
 )
 
 urlpatterns = [
@@ -11,4 +13,6 @@ urlpatterns = [
     path(
         "update-role/<int:user_id>/", AdminUpdateRoleView.as_view(), name="update-role"
     ),
+    path("token/", CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("token/refresh/", CustomTokenRefreshView.as_view(), name="token_refresh"),
 ]

@@ -14,6 +14,16 @@ from drf_spectacular.utils import  extend_schema
 
 @extend_schema(tags=["Restaurants"])
 class RestaurantsView(ListCreateAPIView):
+    """
+    API endpoint for listing and creating restaurants for the authenticated user.
+
+    GET:
+        Returns a list of restaurants owned by the logged-in user.
+    POST:
+        Creates a new restaurant for the authenticated user.
+        Validates that the user does not already have a restaurant with the same name.
+    """
+
     queryset = Restaurants.objects.all()
     serializer_class = RestaurantsSerializer
     permission_classes = [IsAuthenticated]
@@ -50,6 +60,17 @@ class RestaurantsView(ListCreateAPIView):
 
 @extend_schema(tags=["Restaurants"])
 class RestaurantsUpdateView(RetrieveUpdateDestroyAPIView):
+    """
+    API endpoint for retrieving, updating, and deleting a single restaurant owned by the authenticated user.
+
+    GET:
+        Retrieve details of a single restaurant.
+    PUT/PATCH:
+        Update a restaurant owned by the authenticated user.
+    DELETE:
+        Delete a restaurant owned by the authenticated user.
+    """
+
     serializer_class = RestaurantsSerializer
     permission_classes = [IsAuthenticated]
     queryset = Restaurants.objects.all()
@@ -89,6 +110,14 @@ class RestaurantsUpdateView(RetrieveUpdateDestroyAPIView):
 
 @extend_schema(tags=["Menu"])
 class MenuView(CreateAPIView):
+    """
+    API endpoint for creating a menu item for a specific restaurant.
+
+    POST:
+        Creates a new menu item for the restaurant specified by the 'pk' in the URL.
+        Ensures that the restaurant belongs to the authenticated user.
+    """
+
     queryset = Menu.objects.all()
     serializer_class = MenuSerializer
     permission_classes = [IsAuthenticated]
@@ -114,6 +143,17 @@ class MenuView(CreateAPIView):
 
 @extend_schema(tags=["Menu"])
 class MenuUpdateView(RetrieveUpdateDestroyAPIView):
+    """
+    API endpoint for retrieving, updating, and deleting menu items for restaurants owned by the authenticated user.
+
+    GET:
+        Retrieve details of a specific menu item.
+    PUT/PATCH:
+        Update a menu item.
+    DELETE:
+        Delete a menu item.
+    """
+
     queryset = Menu.objects.all()
     serializer_class = MenuSerializer
     permission_classes = [IsAuthenticated]
