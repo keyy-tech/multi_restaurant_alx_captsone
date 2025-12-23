@@ -33,7 +33,7 @@ from rest_framework import generics
             },
         }
     },
-    tags=["users"],
+    tags=["Users"],
 )
 class UserRegistrationView(CreateAPIView):
     queryset = User.objects.all()
@@ -52,7 +52,7 @@ class UserRegistrationView(CreateAPIView):
         return Response(data, status=status.HTTP_201_CREATED)
 
 
-@extend_schema(tags=["users"])
+@extend_schema(tags=["Users"])
 class UserUpdateView(RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -100,7 +100,7 @@ class UserUpdateView(RetrieveUpdateDestroyAPIView):
         return Response(data, status=status.HTTP_204_NO_CONTENT)
 
 
-@extend_schema(tags=["users"])
+@extend_schema(tags=["Users"])
 class AdminUpdateRoleView(UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UpdateRoleSerializers
