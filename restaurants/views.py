@@ -1,9 +1,5 @@
-from webbrowser import get
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.views import APIView
-
-import restaurants
 from .models import Restaurants, Menu
 from .serializers import RestaurantsSerializer, MenuSerializer
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
@@ -13,8 +9,10 @@ from rest_framework.generics import (
     RetrieveUpdateDestroyAPIView,
     CreateAPIView,
 )
+from drf_spectacular.utils import  extend_schema
 
 
+@extend_schema(tags=["Restaurants"])
 class RestaurantsView(ListCreateAPIView):
     queryset = Restaurants.objects.all()
     serializer_class = RestaurantsSerializer
@@ -50,6 +48,7 @@ class RestaurantsView(ListCreateAPIView):
         return Response(data, status=status.HTTP_201_CREATED)
 
 
+@extend_schema(tags=["Restaurants"])
 class RestaurantsUpdateView(RetrieveUpdateDestroyAPIView):
     serializer_class = RestaurantsSerializer
     permission_classes = [IsAuthenticated]
@@ -88,17 +87,18 @@ class RestaurantsUpdateView(RetrieveUpdateDestroyAPIView):
         return Response(data, status=status.HTTP_200_OK)
 
 
-
-
+@extend_schema(tags=["Menu"])
 class MenuView(CreateAPIView):
     queryset = Menu.objects.all()
     serializer_class = MenuSerializer
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        restaurant = get_object_or_404(Restaurants, pk=self.kwargs.get("pk"), owner=self.request.user)
+        restaurant = get_object_or_404(
+            Restaurants, pk=self.kwargs.get("pk"), owner=self.request.user
+        )
         return restaurant
-    
+
     def perform_create(self, serializer):
         serializer.save(restaurant=self.get_object())
 
@@ -110,9 +110,9 @@ class MenuView(CreateAPIView):
             "status": True,
         }
         return Response(data, status=status.HTTP_201_CREATED)
-    
 
 
+@extend_schema(tags=["Menu"])
 class MenuUpdateView(RetrieveUpdateDestroyAPIView):
     queryset = Menu.objects.all()
     serializer_class = MenuSerializer
@@ -123,9 +123,6 @@ class MenuUpdateView(RetrieveUpdateDestroyAPIView):
         user = self.request.user
         menu = get_object_or_404(Menu, pk=pk, restaurant__owner=user)
         return menu
-
-    def perform_update(self, serializer):
-        serializer.save(owner=self.request.user.restaurant)
 
     def update(self, request, *args, **kwargs):
         response = super().update(request, *args, **kwargs)
@@ -142,3 +139,12 @@ class MenuUpdateView(RetrieveUpdateDestroyAPIView):
             "status": True,
         }
         return Response(data, status=status.HTTP_204_NO_CONTENT)
+
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        data = {
+            "msg": "Menu retrieved successfully",
+            "data": response.data,
+            "status": True,
+        }
+        return Response(data, status=status.HTTP_200_OK)
