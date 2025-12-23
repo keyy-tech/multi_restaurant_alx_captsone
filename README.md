@@ -114,14 +114,6 @@ Authorization: Bearer <access_token>
 
 ---
 
-## Permissions
-
-- **Authenticated users** can create and manage their own restaurants and menus
-- **Admin users** can update roles of other users
-- Users cannot modify restaurants or menus belonging to other users
-
----
-
 ## API Documentation
 
 - **Swagger UI**:
