@@ -1,7 +1,3 @@
-Perfect! Let’s update your README to include **Django Silk** for profiling and optimization. I’ll add a new section that explains installation, configuration, and how to access the Silk dashboard. Here’s the updated README with Silk instructions:
-
----
-
 # Multi-Restaurant Management API
 
 A Django REST Framework (DRF) project for managing multiple restaurants and their menus.
