@@ -2,14 +2,14 @@ from rest_framework import status
 from rest_framework.response import Response
 from .models import Restaurants, Menu
 from .serializers import RestaurantsSerializer, MenuSerializer
-from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.generics import get_object_or_404
 from rest_framework.generics import (
     ListCreateAPIView,
     RetrieveUpdateDestroyAPIView,
     CreateAPIView,
 )
-from drf_spectacular.utils import  extend_schema
+from drf_spectacular.utils import extend_schema
 
 
 @extend_schema(tags=["Restaurants"])
