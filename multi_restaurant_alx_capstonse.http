@@ -1,0 +1,159 @@
+###
+POST http://localhost/cart/api/cart_items/
+Content-Type: application/json
+
+{
+  "cart_items": [],
+  "total_price": ""
+}
+
+###
+GET http://localhost/orders/api//
+
+###
+POST http://localhost/orders/api//
+
+###
+GET http://localhost/orders/api//{{id}}/
+
+###
+PUT http://localhost/orders/api//{{id}}/
+Content-Type: application/json
+
+{
+  "order_date": "",
+  "status": {},
+  "total_amount": "",
+  "order_items": [],
+  "created_at": "",
+  "updated_at": ""
+}
+
+###
+PATCH http://localhost/orders/api//{{id}}/
+Content-Type: application/json
+
+{
+  "order_date": "",
+  "status": {},
+  "total_amount": "",
+  "order_items": [],
+  "created_at": "",
+  "updated_at": ""
+}
+
+###
+DELETE http://localhost/orders/api//{{id}}/
+
+###
+GET http://localhost/restaurants/api/
+
+###
+POST http://localhost/restaurants/api/
+Content-Type: application/json
+
+{
+  "name": "",
+  "description": "",
+  "address": "",
+  "phone_number": "",
+  "menu": []
+}
+
+###
+GET http://localhost/restaurants/api/{{id}}/
+
+###
+PUT http://localhost/restaurants/api/{{id}}/
+Content-Type: application/json
+
+###
+PATCH http://localhost/restaurants/api/{{id}}/
+Content-Type: application/json
+
+###
+DELETE http://localhost/restaurants/api/{{id}}/
+
+###
+POST http://localhost/restaurants/api/{{id}}/menu/
+Content-Type: application/json
+
+###
+GET http://localhost/restaurants/api/{{id}}/menu/{{menu_pk}}/
+
+###
+PUT http://localhost/restaurants/api/{{id}}/menu/{{menu_pk}}/
+Content-Type: application/json
+
+###
+PATCH http://localhost/restaurants/api/{{id}}/menu/{{menu_pk}}/
+Content-Type: application/json
+
+###
+DELETE http://localhost/restaurants/api/{{id}}/menu/{{menu_pk}}/
+
+###
+GET http://localhost/users/api/me/
+
+###
+PUT http://localhost/users/api/me/
+Content-Type: application/json
+
+###
+PATCH http://localhost/users/api/me/
+Content-Type: application/json
+
+{
+  "email": "",
+  "first_name": "",
+  "last_name": "",
+  "role": "",
+  "user_profile": {},
+  "password": ""
+}
+
+###
+DELETE http://localhost/users/api/me/
+
+###
+PUT http://localhost/users/api/profile/
+Content-Type: application/json
+
+###
+PATCH http://localhost/users/api/profile/
+Content-Type: application/json
+
+###
+POST http://localhost/users/api/register/
+Content-Type: application/json
+
+###
+POST http://localhost/users/api/token/
+Content-Type: application/json
+
+{
+  "email": "",
+  "password": "",
+  "access": "",
+  "refresh": ""
+}
+
+###
+POST http://localhost/users/api/token/refresh/
+Content-Type: application/json
+
+###
+PUT http://localhost/users/api/update-role/{{user_id}}/
+Content-Type: application/json
+
+{
+  "role": ""
+}
+
+###
+PATCH http://localhost/users/api/update-role/{{user_id}}/
+Content-Type: application/json
+
+{
+  "role": ""
+}

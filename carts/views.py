@@ -1,110 +1,121 @@
-from drf_spectacular.utils import extend_schema
-from rest_framework import status
 from rest_framework.generics import (
+    ListCreateAPIView,
     get_object_or_404,
-    GenericAPIView,
-    CreateAPIView,
+    RetrieveUpdateDestroyAPIView,
 )
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 
+from carts.serializers import CartSerializer
 from restaurants.models import Menu
-from .models import Cart, CartItem
-from .serializers import CartSerializer, CartItemSerializers
+from .models import Cart
 
 
-@extend_schema(tags=["Cart"])
-class CartListDestroy(GenericAPIView):
-    queryset = Cart.objects.all()
+class CartCreateListView(ListCreateAPIView):
     serializer_class = CartSerializer
-    permission_classes = [IsAuthenticated]
+    queryset = Cart.objects.all()
 
     def get_queryset(self):
         return Cart.objects.filter(user=self.request.user)
 
-    def get_object(self):
-        return get_object_or_404(Cart, pk=self.kwargs["pk"], user=self.request.user)
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
     def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        data = {
-            "msg": "Cart retrieved successfully",
-            "data": serializer.data,
-            "count": queryset.count(),
-        }
+        serializer = self.serializer_class(self.get_queryset(), many=True)
+        data = {"msg": "Your Cart Items", "data": serializer.data, "status": True}
         return Response(data, status=status.HTTP_200_OK)
 
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        instance.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-@extend_schema(tags=["Cart"])
-class CartItemsCreateListAPIView(CreateAPIView):
-    queryset = CartItem.objects.all()
-    serializer_class = CartSerializer
-    permission_classes = [IsAuthenticated]
-
     def create(self, request, *args, **kwargs):
-        cart, created = Cart.objects.get_or_create(user=self.request.user)
-        serializer = self.get_serializer(cart=cart, data=request.data)
-        serializer.is_valid(raise_exception=True)
+        menu = get_object_or_404(Menu, pk=request.data.get("menu"))
+        if menu.quantity < 1:
+            data = {
+                "msg": "Menu item is out of stock",
+                "status": False,
+            }
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
-        menu = serializer.validated_data["menu"]
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
         quantity = serializer.validated_data.get("quantity", 1)
 
-        if not get_object_or_404(Menu, id=menu.id):
+        if int(quantity) > menu.quantity:
             data = {
-                "msg": "Menu not found",
-                "data": [],
+                "msg": "Requested quantity exceeds available stock",
+                "status": False,
             }
-            return Response(data, status=status.HTTP_404_NOT_FOUND)
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
-        cart_items, created = CartItem.objects.get_or_create(
-            cart=cart, menu=menu, quantity=quantity
-        )
+        cart, created = Cart.objects.get_or_create(user=request.user, menu=menu)
+
         if not created:
-            cart_items.quantity += 1
+            cart.quantity += quantity
         else:
-            cart_items.quantity = quantity
+            cart.quantity = quantity
 
-        serializer = self.get_serializer(cart_items, data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+        cart.total_price = cart.calculate_total_price()
+        cart.save()
+
+        serializer = self.get_serializer(cart)
 
         data = {
-            "msg": "Item added successfully",
+            "msg": "Cart item added successfully",
             "data": serializer.data,
+            "total_price": cart.cart_item_price(),
             "status": True,
         }
-
         return Response(data, status=status.HTTP_201_CREATED)
 
 
-@extend_schema(tags=["Cart"])
-class CartItemUpdateDestroyAPIView(GenericAPIView):
-    queryset = CartItem.objects.all()
-    serializer_class = CartItemSerializers
-    permission_classes = [IsAuthenticated]
+class CartUpdateDeleteView(RetrieveUpdateDestroyAPIView):
+    serializer_class = CartSerializer
+    queryset = Cart.objects.all()
 
     def get_object(self):
-        return get_object_or_404(Cart, pk=self.kwargs["pk"], user=self.request.user)
+        pk = self.kwargs.get("pk", None)
+        user = self.request.user
+        cart = get_object_or_404(Cart, pk=pk, user=user)
+        return cart
 
     def update(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+        cart = self.get_object()
+        menu = cart.menu
+        quantity = request.data.get("quantity", cart.quantity)
+
+        if int(quantity) > menu.quantity:
+            data = {
+                "msg": "Requested quantity exceeds available stock",
+                "status": False,
+            }
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
+
+        response = super().update(request, *args, **kwargs)
+        cart.total_price = cart.calculate_total_price()
+        cart.save()
+
         data = {
-            "msg": "Item updated successfully",
-            "data": serializer.data,
+            "msg": "Cart item updated successfully",
+            "data": response.data,
+            "total_price": cart_item.cart_item_price(),
             "status": True,
         }
         return Response(data, status=status.HTTP_200_OK)
 
     def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        instance.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        cart = self.get_object()
+        super().destroy(request, *args, **kwargs)
+        data = {
+            "msg": "Cart item deleted successfully",
+            "total_price": cart.cart_item_price(),
+            "status": True,
+        }
+        return Response(data, status=status.HTTP_200_OK)
+
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        cart = self.get_object()
+        data = {
+            "msg": "Cart item retrieved successfully",
+            "data": response.data,
+            "total_price": cart.cart_item_price(),
+            "status": True,
+        }
+        return Response(data, status=status.HTTP_200_OK)

@@ -1,0 +1,1215 @@
+openapi: 3.0.3
+info:
+  title: Multi Restaurant ALX Capstone API
+  version: 1.0.0
+  description: API documentation for the Multi Restaurant ALX Capstone project
+paths:
+  /cart/api/cart_items/:
+    post:
+      operationId: cart_api_cart_items_create
+      tags:
+      - Cart
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Cart'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Cart'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Cart'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+          description: ''
+  /orders/api//:
+    get:
+      operationId: orders_api_list
+      description: Get an existing order
+      summary: Get an existing order
+      tags:
+      - orders
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  description: Successful Response
+          description: ''
+    post:
+      operationId: orders_api_create
+      description: Create a new order
+      summary: Create a new order
+      tags:
+      - orders
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                description: Successful Response
+          description: ''
+  /orders/api//{id}/:
+    get:
+      operationId: orders_api_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - orders
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+    put:
+      operationId: orders_api_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Order'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Order'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+    patch:
+      operationId: orders_api_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - orders
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedOrder'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedOrder'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedOrder'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+    delete:
+      operationId: orders_api_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - orders
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /restaurants/api/:
+    get:
+      operationId: restaurants_api_list
+      description: |-
+        API endpoint for listing and creating restaurants for the authenticated user.
+
+        GET:
+            Returns a list of restaurants owned by the logged-in user.
+        POST:
+            Creates a new restaurant for the authenticated user.
+            Validates that the user does not already have a restaurant with the same name.
+      tags:
+      - Restaurants
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Restaurants'
+          description: ''
+    post:
+      operationId: restaurants_api_create
+      description: |-
+        API endpoint for listing and creating restaurants for the authenticated user.
+
+        GET:
+            Returns a list of restaurants owned by the logged-in user.
+        POST:
+            Creates a new restaurant for the authenticated user.
+            Validates that the user does not already have a restaurant with the same name.
+      tags:
+      - Restaurants
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Restaurants'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Restaurants'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Restaurants'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Restaurants'
+          description: ''
+  /restaurants/api/{id}/:
+    get:
+      operationId: restaurants_api_retrieve
+      description: |-
+        API endpoint for retrieving, updating, and deleting a single restaurant owned by the authenticated user.
+
+        GET:
+            Retrieve details of a single restaurant.
+        PUT/PATCH:
+            Update a restaurant owned by the authenticated user.
+        DELETE:
+            Delete a restaurant owned by the authenticated user.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Restaurants
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Restaurants'
+          description: ''
+    put:
+      operationId: restaurants_api_update
+      description: |-
+        API endpoint for retrieving, updating, and deleting a single restaurant owned by the authenticated user.
+
+        GET:
+            Retrieve details of a single restaurant.
+        PUT/PATCH:
+            Update a restaurant owned by the authenticated user.
+        DELETE:
+            Delete a restaurant owned by the authenticated user.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Restaurants
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Restaurants'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Restaurants'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Restaurants'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Restaurants'
+          description: ''
+    patch:
+      operationId: restaurants_api_partial_update
+      description: |-
+        API endpoint for retrieving, updating, and deleting a single restaurant owned by the authenticated user.
+
+        GET:
+            Retrieve details of a single restaurant.
+        PUT/PATCH:
+            Update a restaurant owned by the authenticated user.
+        DELETE:
+            Delete a restaurant owned by the authenticated user.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Restaurants
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedRestaurants'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedRestaurants'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedRestaurants'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Restaurants'
+          description: ''
+    delete:
+      operationId: restaurants_api_destroy
+      description: |-
+        API endpoint for retrieving, updating, and deleting a single restaurant owned by the authenticated user.
+
+        GET:
+            Retrieve details of a single restaurant.
+        PUT/PATCH:
+            Update a restaurant owned by the authenticated user.
+        DELETE:
+            Delete a restaurant owned by the authenticated user.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Restaurants
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /restaurants/api/{id}/menu/:
+    post:
+      operationId: restaurants_api_menu_create
+      description: |-
+        API endpoint for creating a menu item for a specific restaurant.
+
+        POST:
+            Creates a new menu item for the restaurant specified by the 'pk' in the URL.
+            Ensures that the restaurant belongs to the authenticated user.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Menu
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Menu'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Menu'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Menu'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Menu'
+          description: ''
+  /restaurants/api/{id}/menu/{menu_pk}/:
+    get:
+      operationId: restaurants_api_menu_retrieve
+      description: |-
+        API endpoint for retrieving, updating, and deleting menu items for restaurants owned by the authenticated user.
+
+        GET:
+            Retrieve details of a specific menu item.
+        PUT/PATCH:
+            Update a menu item.
+        DELETE:
+            Delete a menu item.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: menu_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Menu
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Menu'
+          description: ''
+    put:
+      operationId: restaurants_api_menu_update
+      description: |-
+        API endpoint for retrieving, updating, and deleting menu items for restaurants owned by the authenticated user.
+
+        GET:
+            Retrieve details of a specific menu item.
+        PUT/PATCH:
+            Update a menu item.
+        DELETE:
+            Delete a menu item.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: menu_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Menu
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Menu'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Menu'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Menu'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Menu'
+          description: ''
+    patch:
+      operationId: restaurants_api_menu_partial_update
+      description: |-
+        API endpoint for retrieving, updating, and deleting menu items for restaurants owned by the authenticated user.
+
+        GET:
+            Retrieve details of a specific menu item.
+        PUT/PATCH:
+            Update a menu item.
+        DELETE:
+            Delete a menu item.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: menu_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Menu
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedMenu'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedMenu'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedMenu'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Menu'
+          description: ''
+    delete:
+      operationId: restaurants_api_menu_destroy
+      description: |-
+        API endpoint for retrieving, updating, and deleting menu items for restaurants owned by the authenticated user.
+
+        GET:
+            Retrieve details of a specific menu item.
+        PUT/PATCH:
+            Update a menu item.
+        DELETE:
+            Delete a menu item.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: menu_pk
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Menu
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /users/api/me/:
+    get:
+      operationId: users_api_me_retrieve
+      description: |-
+        API endpoint for retrieving, updating, or deleting the authenticated user.
+
+        GET:
+            Retrieve the current user's details.
+        PATCH/PUT:
+            Update the current user's profile information.
+        DELETE:
+            Delete the authenticated user account.
+      tags:
+      - Users
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    put:
+      operationId: users_api_me_update
+      description: |-
+        API endpoint for retrieving, updating, or deleting the authenticated user.
+
+        GET:
+            Retrieve the current user's details.
+        PATCH/PUT:
+            Update the current user's profile information.
+        DELETE:
+            Delete the authenticated user account.
+      tags:
+      - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/User'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    patch:
+      operationId: users_api_me_partial_update
+      description: |-
+        API endpoint for retrieving, updating, or deleting the authenticated user.
+
+        GET:
+            Retrieve the current user's details.
+        PATCH/PUT:
+            Update the current user's profile information.
+        DELETE:
+            Delete the authenticated user account.
+      tags:
+      - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUser'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    delete:
+      operationId: users_api_me_destroy
+      description: |-
+        API endpoint for retrieving, updating, or deleting the authenticated user.
+
+        GET:
+            Retrieve the current user's details.
+        PATCH/PUT:
+            Update the current user's profile information.
+        DELETE:
+            Delete the authenticated user account.
+      tags:
+      - Users
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /users/api/profile/:
+    put:
+      operationId: users_api_profile_update
+      tags:
+      - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfile'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserProfile'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserProfile'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+          description: ''
+    patch:
+      operationId: users_api_profile_partial_update
+      tags:
+      - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserProfile'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserProfile'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserProfile'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+          description: ''
+  /users/api/register/:
+    post:
+      operationId: users_api_register_create
+      description: |-
+        API endpoint for registering a new user account.
+
+        POST:
+            Creates a new user along with an associated user profile.
+            Returns the created user data along with a success message.
+      tags:
+      - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                user_profile:
+                  type: object
+                  properties:
+                    other_name:
+                      type: string
+                    date_of_birth:
+                      type: string
+                      format: date
+                    phone_number:
+                      type: string
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /users/api/token/:
+    post:
+      operationId: users_api_token_create
+      description: |-
+        API endpoint to obtain a JWT access and refresh token pair.
+
+        POST:
+            Requires 'email' and 'password'.
+            Returns an access token and a refresh token for authentication.
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenObtainPair'
+          description: ''
+  /users/api/token/refresh/:
+    post:
+      operationId: users_api_token_refresh_create
+      description: |-
+        API endpoint to refresh a JWT access token using a refresh token.
+
+        POST:
+            Requires 'refresh' token in the request body.
+            Returns a new access token.
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /users/api/update-role/{user_id}/:
+    put:
+      operationId: users_api_update_role_update
+      description: |-
+        API endpoint for admin users to update a user's role.
+
+        PATCH/PUT:
+            Updates the role of a specified user by user_id.
+            Ensures the role cannot be updated if the user is already an owner.
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRoleSerializers'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UpdateRoleSerializers'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UpdateRoleSerializers'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateRoleSerializers'
+          description: ''
+    patch:
+      operationId: users_api_update_role_partial_update
+      description: |-
+        API endpoint for admin users to update a user's role.
+
+        PATCH/PUT:
+            Updates the role of a specified user by user_id.
+            Ensures the role cannot be updated if the user is already an owner.
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateRoleSerializers'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateRoleSerializers'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUpdateRoleSerializers'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateRoleSerializers'
+          description: ''
+components:
+  schemas:
+    Cart:
+      type: object
+      properties:
+        cart_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartItemSerializers'
+        total_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+      required:
+      - cart_items
+      - total_price
+    CartItemSerializers:
+      type: object
+      properties:
+        menu_item:
+          type: integer
+        quantity:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+      required:
+      - menu_item
+    Menu:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+      required:
+      - description
+      - name
+      - price
+    Order:
+      type: object
+      properties:
+        order_date:
+          type: string
+          format: date-time
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          readOnly: true
+        total_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+        order_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - order_date
+      - order_items
+      - status
+      - total_amount
+      - updated_at
+    OrderItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        menu_item:
+          type: integer
+        quantity:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - menu_item
+      - price
+      - quantity
+      - updated_at
+    PatchedMenu:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+    PatchedOrder:
+      type: object
+      properties:
+        order_date:
+          type: string
+          format: date-time
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          readOnly: true
+        total_amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+        order_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedRestaurants:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        address:
+          type: string
+        phone_number:
+          type: string
+          maxLength: 20
+        menu:
+          type: array
+          items:
+            $ref: '#/components/schemas/Menu'
+          readOnly: true
+    PatchedUpdateRoleSerializers:
+      type: object
+      properties:
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+    PatchedUser:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 255
+        first_name:
+          type: string
+          maxLength: 255
+        last_name:
+          type: string
+          maxLength: 255
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        user_profile:
+          $ref: '#/components/schemas/UserProfile'
+        password:
+          type: string
+          writeOnly: true
+    PatchedUserProfile:
+      type: object
+      properties:
+        other_name:
+          type: string
+          maxLength: 255
+        date_of_birth:
+          type: string
+          format: date
+        phone_number:
+          type: string
+          maxLength: 10
+    Restaurants:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        address:
+          type: string
+        phone_number:
+          type: string
+          maxLength: 20
+        menu:
+          type: array
+          items:
+            $ref: '#/components/schemas/Menu'
+          readOnly: true
+      required:
+      - address
+      - description
+      - menu
+      - name
+      - phone_number
+    RoleEnum:
+      enum:
+      - owner
+      - customer
+      type: string
+      description: |-
+        * `owner` - Owner
+        * `customer` - Customer
+    StatusEnum:
+      enum:
+      - PENDING
+      - PROCESSING
+      - COMPLETED
+      - CANCELLED
+      type: string
+      description: |-
+        * `PENDING` - Pending
+        * `PROCESSING` - Processing
+        * `COMPLETED` - Completed
+        * `CANCELLED` - Cancelled
+    TokenObtainPair:
+      type: object
+      properties:
+        email:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          readOnly: true
+      required:
+      - access
+      - email
+      - password
+      - refresh
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          writeOnly: true
+      required:
+      - access
+      - refresh
+    UpdateRoleSerializers:
+      type: object
+      properties:
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+    User:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 255
+        first_name:
+          type: string
+          maxLength: 255
+        last_name:
+          type: string
+          maxLength: 255
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        user_profile:
+          $ref: '#/components/schemas/UserProfile'
+        password:
+          type: string
+          writeOnly: true
+      required:
+      - email
+      - first_name
+      - last_name
+      - password
+      - user_profile
+    UserProfile:
+      type: object
+      properties:
+        other_name:
+          type: string
+          maxLength: 255
+        date_of_birth:
+          type: string
+          format: date
+        phone_number:
+          type: string
+          maxLength: 10
+      required:
+      - date_of_birth
+      - other_name
+      - phone_number
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

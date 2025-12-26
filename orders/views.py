@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import status
 from rest_framework.generics import (
     ListCreateAPIView,
@@ -8,13 +9,29 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from carts.models import Cart
+from carts.serializers import CartSerializer
 from orders.models import OrderItem, Order
 from orders.serializers import OrderSerializer
 
 
+@extend_schema_view(
+    post=extend_schema(
+        summary="Create a new order",
+        description="Create a new order",
+        request=None,
+        responses={200: {"description": "Successful Response"}},
+        tags=["orders"],
+    ),
+    get=extend_schema(
+        summary="Get an existing order",
+        description="Get an existing order",
+        request=CartSerializer,
+        responses={200: {"description": "Successful Response"}},
+    ),
+)
 class OrderCreateView(ListCreateAPIView):
     queryset = Order.objects.all()
-    serializer_class = None
+    serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
@@ -29,7 +46,7 @@ class OrderCreateView(ListCreateAPIView):
             }
             return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
-        cart = Cart.objects.prefetch_related("items").filter(user=request.user)
+        cart = Cart.objects.filter(user=request.user)
         cart.calculate_total_price()
 
         order = Order.objects.create(
@@ -42,7 +59,7 @@ class OrderCreateView(ListCreateAPIView):
             order_item_create_list.append(
                 OrderItem.objects.create(
                     order=item.order,
-                    item=item.item,
+                    menu_item=item.menu,
                     quantity=item.quantity,
                     price=item.cart_item_price(),
                 )
