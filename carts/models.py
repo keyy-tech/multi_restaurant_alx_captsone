@@ -16,11 +16,10 @@ class Cart(models.Model):
     def __str__(self):
         return self.user.username
 
-    def cart_item_price(self):
+    def item_total_price(self):
         return self.menu.price * self.quantity
 
     def calculate_total_price(self):
-        total = sum(item.cart_item_price() for item in self.items.all())
-        self.total_price = total
-        self.save()
-        return self.total_price
+        cart_items = Cart.objects.filter(user=self.user)
+        total = sum(item.item_total_price() for item in cart_items)
+        return total
