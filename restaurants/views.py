@@ -5,7 +5,7 @@ from rest_framework.generics import (
     RetrieveUpdateDestroyAPIView,
     get_object_or_404,
 )
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from .models import Restaurants, Menu
@@ -14,7 +14,6 @@ from .serializers import RestaurantsSerializer, MenuSerializer, MenuDetailSerial
 
 # ---------------- RESTAURANTS ----------------
 
-
 @extend_schema(tags=["Restaurants"])
 class RestaurantsView(ListCreateAPIView):
     """
@@ -22,24 +21,21 @@ class RestaurantsView(ListCreateAPIView):
     - Owners: list their restaurants and create new ones.
     - Customers: list all available restaurants.
     """
-
     queryset = Restaurants.objects.all()
     serializer_class = RestaurantsSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         user = self.request.user
-        if user.role == "owner":
+        role = getattr(user, "role", None)
+        if role == "owner":
             return Restaurants.objects.filter(owner=user)
         return Restaurants.objects.all()
 
     def list(self, request, *args, **kwargs):
         serializer = self.serializer_class(self.get_queryset(), many=True)
-        msg = (
-            "Your Restaurants"
-            if request.user.role == "owner"
-            else "Available Restaurants"
-        )
+        role = getattr(request.user, "role", None)
+        msg = "Your Restaurants" if role == "owner" else "Available Restaurants"
         return Response(
             {"msg": msg, "data": serializer.data, "status": True},
             status=status.HTTP_200_OK,
@@ -47,23 +43,20 @@ class RestaurantsView(ListCreateAPIView):
 
     def create(self, request, *args, **kwargs):
         user = request.user
-        if user.role != "owner":
+        role = getattr(user, "role", None)
+        if role != "owner":
             return Response(
                 {"msg": "Only owners can create restaurants", "status": False},
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        if Restaurants.objects.filter(
-            owner=user, name=request.data.get("name")
-        ).exists():
+        if Restaurants.objects.filter(owner=user, name=request.data.get("name")).exists():
             return Response(
                 {"msg": "You already have a restaurant", "status": False},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        serializer = self.get_serializer(
-            data=request.data, context={"request": request}
-        )
+        serializer = self.get_serializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(
@@ -78,7 +71,6 @@ class RestaurantsView(ListCreateAPIView):
 
 # ---------------- RESTAURANT DETAIL ----------------
 
-
 @extend_schema(tags=["Restaurants"])
 class RestaurantsDetailView(RetrieveUpdateDestroyAPIView):
     serializer_class = RestaurantsSerializer
@@ -87,29 +79,22 @@ class RestaurantsDetailView(RetrieveUpdateDestroyAPIView):
     def get_object(self):
         pk = self.kwargs.get("pk")
         user = self.request.user
-        if user.role == "owner":
+        role = getattr(user, "role", None)
+        if role == "owner":
             return get_object_or_404(Restaurants, pk=pk, owner=user)
         return get_object_or_404(Restaurants, pk=pk)
 
     def retrieve(self, request, *args, **kwargs):
         response = super().retrieve(request, *args, **kwargs)
         return Response(
-            {
-                "msg": "Restaurant retrieved successfully",
-                "data": response.data,
-                "status": True,
-            },
+            {"msg": "Restaurant retrieved successfully", "data": response.data, "status": True},
             status=status.HTTP_200_OK,
         )
 
     def update(self, request, *args, **kwargs):
         response = super().update(request, *args, **kwargs)
         return Response(
-            {
-                "msg": "Restaurant updated successfully",
-                "data": response.data,
-                "status": True,
-            },
+            {"msg": "Restaurant updated successfully", "data": response.data, "status": True},
             status=status.HTTP_200_OK,
         )
 
@@ -123,7 +108,6 @@ class RestaurantsDetailView(RetrieveUpdateDestroyAPIView):
 
 # ---------------- MENU ----------------
 
-
 @extend_schema(tags=["Menu"])
 class MenuView(ListCreateAPIView):
     """
@@ -131,22 +115,21 @@ class MenuView(ListCreateAPIView):
     - Owners: create and list menus of their restaurant.
     - Customers: list menu items (read-only).
     """
-
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
+    serializer_class = MenuDetailSerializer
 
     def get_serializer_class(self):
-        return (
-            MenuSerializer
-            if self.request.user.role == "owner"
-            else MenuDetailSerializer
-        )
+        role = getattr(self.request.user, "role", None)
+        if role == "owner":
+            return MenuSerializer
+        return self.serializer_class
 
     def get_queryset(self):
         restaurant_id = self.kwargs.get("pk")
-        user = self.request.user
-        if user.role == "owner":
+        role = getattr(self.request.user, "role", None)
+        if role == "owner":
             return Menu.objects.filter(
-                restaurant__id=restaurant_id, restaurant__owner=user
+                restaurant__id=restaurant_id, restaurant__owner=self.request.user
             )
         return Menu.objects.filter(restaurant__id=restaurant_id, is_available=True)
 
@@ -158,79 +141,66 @@ class MenuView(ListCreateAPIView):
         )
 
     def create(self, request, *args, **kwargs):
-        user = request.user
-        if user.role != "owner":
+        role = getattr(request.user, "role", None)
+        if role != "owner":
             return Response(
                 {"msg": "Only owners can create menu items", "status": False},
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        restaurant = get_object_or_404(
-            Restaurants, pk=self.kwargs.get("pk"), owner=user
-        )
+        restaurant = get_object_or_404(Restaurants, pk=self.kwargs.get("pk"), owner=request.user)
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(restaurant=restaurant)
         return Response(
-            {
-                "msg": "Menu item created successfully",
-                "data": serializer.data,
-                "status": True,
-            },
+            {"msg": "Menu item created successfully", "data": serializer.data, "status": True},
             status=status.HTTP_201_CREATED,
         )
 
 
 # ---------------- MENU DETAIL ----------------
 
-
 @extend_schema(tags=["Menu"])
 class MenuDetailView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = MenuDetailSerializer
 
     def get_serializer_class(self):
-        return (
-            MenuSerializer
-            if self.request.user.role == "owner"
-            else MenuDetailSerializer
-        )
+        role = getattr(self.request.user, "role", None)
+        if role == "owner":
+            return MenuSerializer
+        return self.serializer_class
 
     def get_object(self):
         pk = self.kwargs.get("pk")
-        user = self.request.user
-        if user.role == "owner":
-            return get_object_or_404(Menu, pk=pk, restaurant__owner=user)
+        role = getattr(self.request.user, "role", None)
+        if role == "owner":
+            return get_object_or_404(Menu, pk=pk, restaurant__owner=self.request.user)
         return get_object_or_404(Menu, pk=pk, is_available=True)
 
     def retrieve(self, request, *args, **kwargs):
         response = super().retrieve(request, *args, **kwargs)
         return Response(
-            {
-                "msg": "Menu item retrieved successfully",
-                "data": response.data,
-                "status": True,
-            },
+            {"msg": "Menu item retrieved successfully", "data": response.data, "status": True},
             status=status.HTTP_200_OK,
         )
 
     def update(self, request, *args, **kwargs):
-        if self.request.user.role != "owner":
+        role = getattr(request.user, "role", None)
+        if role != "owner":
             return Response(
                 {"msg": "Only owners can update menu items", "status": False},
                 status=status.HTTP_403_FORBIDDEN,
             )
         response = super().update(request, *args, **kwargs)
         return Response(
-            {
-                "msg": "Menu item updated successfully",
-                "data": response.data,
-                "status": True,
-            },
+            {"msg": "Menu item updated successfully", "data": response.data, "status": True},
             status=status.HTTP_200_OK,
         )
 
     def destroy(self, request, *args, **kwargs):
-        if self.request.user.role != "owner":
+        role = getattr(request.user, "role", None)
+        if role != "owner":
             return Response(
                 {"msg": "Only owners can delete menu items", "status": False},
                 status=status.HTTP_403_FORBIDDEN,
