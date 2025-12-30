@@ -15,7 +15,7 @@ from .serializers import RestaurantsSerializer, MenuSerializer, MenuDetailSerial
 # ---------------- RESTAURANTS ----------------
 
 
-@extend_schema(tags=["Restaurants"])
+@extend_schema(tags=["Restaurants"], summary="List and create restaurants")
 class RestaurantsView(ListCreateAPIView):
     """
     Unified API endpoint for restaurants.
@@ -78,7 +78,7 @@ class RestaurantsView(ListCreateAPIView):
 # ---------------- RESTAURANT DETAIL ----------------
 
 
-@extend_schema(tags=["Restaurants"])
+@extend_schema(tags=["Restaurants"], summary="Retrieve, update, or delete a restaurant")
 class RestaurantsDetailView(RetrieveUpdateDestroyAPIView):
     serializer_class = RestaurantsSerializer
     permission_classes = [IsAuthenticated]
@@ -124,7 +124,7 @@ class RestaurantsDetailView(RetrieveUpdateDestroyAPIView):
 # ---------------- MENU ----------------
 
 
-@extend_schema(tags=["Menu"])
+@extend_schema(tags=["Menu"], summary="List and create menu items for a restaurant")
 class MenuView(ListCreateAPIView):
     """
     Unified menu endpoint.
@@ -184,7 +184,7 @@ class MenuView(ListCreateAPIView):
 # ---------------- MENU DETAIL ----------------
 
 
-@extend_schema(tags=["Menu"])
+@extend_schema(tags=["Menu"], summary="Retrieve, update, or delete a menu item")
 class MenuDetailView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = MenuDetailSerializer

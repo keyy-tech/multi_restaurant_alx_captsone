@@ -1,4 +1,4 @@
-from drf_spectacular.utils import extend_schema, extend_schema_view
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.generics import (
     ListCreateAPIView,
@@ -9,25 +9,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from carts.models import Cart
-from carts.serializers import CartSerializer
 from orders.models import OrderItem, Order
 from orders.serializers import OrderSerializer
 
 
-@extend_schema_view(
-    post=extend_schema(
-        summary="Create a new order",
-        description="Create a new order",
-        request=None,
-        responses={200: {"description": "Successful Response"}},
-        tags=["orders"],
-    ),
-    get=extend_schema(
-        summary="Get an existing order",
-        description="Get an existing order",
-        request=CartSerializer,
-        responses={200: {"description": "Successful Response"}},
-    ),
+@extend_schema(
+    tags=["Orders"],
+    summary="List all orders or create a new order from the user's cart",
 )
 class OrderCreateView(ListCreateAPIView):
     queryset = Order.objects.all()
@@ -88,6 +76,7 @@ class OrderCreateView(ListCreateAPIView):
         return Response(data, status=status.HTTP_200_OK)
 
 
+@extend_schema(tags=["Orders"], summary="Update an existing order")
 class OrderRetrieveUpdateDestroyAPIView(RetrieveUpdateDestroyAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer

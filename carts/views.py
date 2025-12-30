@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema
 from rest_framework.generics import (
     ListCreateAPIView,
     get_object_or_404,
@@ -9,6 +10,9 @@ from restaurants.models import Menu
 from .models import Cart
 
 
+@extend_schema(
+    tags=["Carts"], summary="List all cart items or add a new item to the cart"
+)
 class CartCreateListView(ListCreateAPIView):
     serializer_class = CartSerializer
     queryset = Cart.objects.all()
@@ -65,6 +69,7 @@ class CartCreateListView(ListCreateAPIView):
         return Response(data, status=status.HTTP_201_CREATED)
 
 
+@extend_schema(tags=["Carts"], summary="Retrieve, update, or delete a cart item by ID")
 class CartUpdateDeleteView(RetrieveUpdateDestroyAPIView):
     serializer_class = CartSerializer
     queryset = Cart.objects.all()

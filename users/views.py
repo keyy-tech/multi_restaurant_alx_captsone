@@ -37,6 +37,7 @@ from .serializers import UserSerializer, UpdateRoleSerializers, UserProfileSeria
         }
     },
     tags=["Users"],
+    summary="Register a new user account",
 )
 class UserRegistrationView(CreateAPIView):
     """
@@ -61,7 +62,9 @@ class UserRegistrationView(CreateAPIView):
         return Response(data, status=status.HTTP_201_CREATED)
 
 
-@extend_schema(tags=["Users"])
+@extend_schema(
+    tags=["Users"], summary="Retrieve, update, or delete the authenticated user"
+)
 class UserUpdateView(RetrieveUpdateDestroyAPIView):
     """
     API endpoint for retrieving, updating, or deleting the authenticated user.
@@ -116,7 +119,7 @@ class UserUpdateView(RetrieveUpdateDestroyAPIView):
         return Response(data, status=status.HTTP_204_NO_CONTENT)
 
 
-@extend_schema(tags=["Users"])
+@extend_schema(tags=["Users"], summary="Update the authenticated user's profile")
 class UserProfileUpdateAPIView(UpdateAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
@@ -136,7 +139,7 @@ class UserProfileUpdateAPIView(UpdateAPIView):
         return Response(data, status=status.HTTP_200_OK)
 
 
-@extend_schema(tags=["Users"])
+@extend_schema(tags=["Users"], summary="Admin update a user's role")
 class AdminUpdateRoleView(UpdateAPIView):
     """
     API endpoint for admin users to update a user's role.
@@ -173,7 +176,9 @@ class AdminUpdateRoleView(UpdateAPIView):
         return Response(data, status=status.HTTP_204_NO_CONTENT)
 
 
-@extend_schema(tags=["Authentication"])
+@extend_schema(
+    tags=["Authentication"], summary="Obtain a JWT access and refresh token pair"
+)
 class CustomTokenObtainPairView(TokenObtainPairView):
     """
     API endpoint to obtain a JWT access and refresh token pair.
@@ -186,7 +191,9 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     pass
 
 
-@extend_schema(tags=["Authentication"])
+@extend_schema(
+    tags=["Authentication"], summary="Refresh a JWT access token using a refresh token"
+)
 class CustomTokenRefreshView(TokenRefreshView):
     """
     API endpoint to refresh a JWT access token using a refresh token.
@@ -199,6 +206,7 @@ class CustomTokenRefreshView(TokenRefreshView):
     pass
 
 
+@extend_schema(tags=["Super Users"], summary="Create a new superuser account")
 class CreateSuperUserView(CreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = UserSerializer
@@ -215,7 +223,7 @@ class CreateSuperUserView(CreateAPIView):
         return Response(data, status=status.HTTP_201_CREATED)
 
 
-
+@extend_schema(tags=["Super Users"], summary="List all users (admin only)")
 class ListUsersView(ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -231,6 +239,10 @@ class ListUsersView(ListCreateAPIView):
         return Response(data, status=status.HTTP_200_OK)
 
 
+@extend_schema(
+    tags=["Super Users"],
+    summary="Retrieve, update, or delete the authenticated superuser",
+)
 class UpdateRetrieveDestroySuperUserView(RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -239,7 +251,6 @@ class UpdateRetrieveDestroySuperUserView(RetrieveUpdateDestroyAPIView):
     def get_object(self):
         user = self.request.user
         return user.user_profile
-
 
     def retrieve(self, request: Request, *args, **kwargs):
         instance = self.get_object()
@@ -258,7 +269,7 @@ class UpdateRetrieveDestroySuperUserView(RetrieveUpdateDestroyAPIView):
         serializer.save()
         data = {
             "msg": "User updated successfully",
-            "data": serializer.data                                                                                                                     ,
+            "data": serializer.data,
             "status": True,
         }
         return Response(data, status=status.HTTP_200_OK)
@@ -271,4 +282,3 @@ class UpdateRetrieveDestroySuperUserView(RetrieveUpdateDestroyAPIView):
             "status": True,
         }
         return Response(data, status=status.HTTP_204_NO_CONTENT)
-

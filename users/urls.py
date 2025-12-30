@@ -1,4 +1,5 @@
 from django.urls import path
+
 from .views import (
     UserRegistrationView,
     UserUpdateView,
@@ -6,8 +7,9 @@ from .views import (
     CustomTokenObtainPairView,
     CustomTokenRefreshView,
     CreateSuperUserView,
+    UserProfileUpdateAPIView,
     ListUsersView,
-    UpdateRetrieveDestroySuperUserView
+    UpdateRetrieveDestroySuperUserView,
 )
 
 urlpatterns = [
@@ -19,8 +21,11 @@ urlpatterns = [
     ),
     path("super_users/", CreateSuperUserView.as_view(), name="superuser-register"),
     path("super_users/users/", ListUsersView.as_view(), name="superuser-list"),
-    path("super_users/me/", UpdateRetrieveDestroySuperUserView.as_view(), name="superuser-update"),
-
+    path(
+        "super_users/me/",
+        UpdateRetrieveDestroySuperUserView.as_view(),
+        name="superuser-update",
+    ),
     path("token/", CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", CustomTokenRefreshView.as_view(), name="token_refresh"),
 ]
