@@ -5,7 +5,7 @@ from rest_framework.generics import (
     CreateAPIView,
     UpdateAPIView,
     RetrieveUpdateDestroyAPIView,
-    ListCreateAPIView,
+    ListAPIView,
 )
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.request import Request
@@ -224,7 +224,7 @@ class CreateSuperUserView(CreateAPIView):
 
 
 @extend_schema(tags=["Super Users"], summary="List all users (admin only)")
-class ListUsersView(ListCreateAPIView):
+class ListUsersView(ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAdminUser]
