@@ -1,17 +1,19 @@
+from drf_spectacular.utils import extend_schema
+from rest_framework import generics
+from rest_framework import status
 from rest_framework.generics import (
     CreateAPIView,
     UpdateAPIView,
     RetrieveUpdateDestroyAPIView,
+    ListCreateAPIView,
 )
-from .models import User,UserProfile
-from .serializers import UserSerializer, UpdateRoleSerializers,UserProfileSerializer
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
-from rest_framework.response import Response
-from rest_framework import status
 from rest_framework.request import Request
-from drf_spectacular.utils import extend_schema
-from rest_framework import generics
+from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
+from .models import User, UserProfile
+from .serializers import UserSerializer, UpdateRoleSerializers, UserProfileSerializer
 
 
 @extend_schema(
@@ -113,6 +115,7 @@ class UserUpdateView(RetrieveUpdateDestroyAPIView):
         }
         return Response(data, status=status.HTTP_204_NO_CONTENT)
 
+
 @extend_schema(tags=["Users"])
 class UserProfileUpdateAPIView(UpdateAPIView):
     queryset = UserProfile.objects.all()
@@ -123,7 +126,6 @@ class UserProfileUpdateAPIView(UpdateAPIView):
         user = self.request.user
         return user.user_profile
 
-
     def update(self, request, *args, **kwargs):
         response = super().update(request, *args, **kwargs)
         data = {
@@ -132,11 +134,6 @@ class UserProfileUpdateAPIView(UpdateAPIView):
             "status": True,
         }
         return Response(data, status=status.HTTP_200_OK)
-
-
-
-
-
 
 
 @extend_schema(tags=["Users"])
@@ -200,3 +197,78 @@ class CustomTokenRefreshView(TokenRefreshView):
     """
 
     pass
+
+
+class CreateSuperUserView(CreateAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = UserSerializer
+
+    def create(self, request: Request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        data = {
+            "msg": "You have successfully being created as a superuser",
+            "data": serializer.data,
+            "status": True,
+        }
+        return Response(data, status=status.HTTP_201_CREATED)
+
+
+
+class ListUsersView(ListCreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAdminUser]
+
+    def list(self, request: Request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        data = {
+            "msg": "Users retrieved successfully",
+            "data": response.data,
+            "status": True,
+        }
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class UpdateRetrieveDestroySuperUserView(RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAdminUser]
+
+    def get_object(self):
+        user = self.request.user
+        return user.user_profile
+
+
+    def retrieve(self, request: Request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = {
+            "msg": "User retrieved successfully",
+            "data": serializer.data,
+            "status": True,
+        }
+        return Response(data, status=status.HTTP_200_OK)
+
+    def update(self, request: Request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        data = {
+            "msg": "User updated successfully",
+            "data": serializer.data                                                                                                                     ,
+            "status": True,
+        }
+        return Response(data, status=status.HTTP_200_OK)
+
+    def destroy(self, request: Request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        data = {
+            "msg": "User deleted successfully",
+            "status": True,
+        }
+        return Response(data, status=status.HTTP_204_NO_CONTENT)
+

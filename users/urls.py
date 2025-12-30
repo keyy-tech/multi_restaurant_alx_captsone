@@ -5,7 +5,9 @@ from .views import (
     AdminUpdateRoleView,
     CustomTokenObtainPairView,
     CustomTokenRefreshView,
-    UserProfileUpdateAPIView
+    CreateSuperUserView,
+    ListUsersView,
+    UpdateRetrieveDestroySuperUserView
 )
 
 urlpatterns = [
@@ -15,6 +17,10 @@ urlpatterns = [
     path(
         "update-role/<int:user_id>/", AdminUpdateRoleView.as_view(), name="update-role"
     ),
+    path("super_users/", CreateSuperUserView.as_view(), name="superuser-register"),
+    path("super_users/users/", ListUsersView.as_view(), name="superuser-list"),
+    path("super_users/me/", UpdateRetrieveDestroySuperUserView.as_view(), name="superuser-update"),
+
     path("token/", CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", CustomTokenRefreshView.as_view(), name="token_refresh"),
 ]

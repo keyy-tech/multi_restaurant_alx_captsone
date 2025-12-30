@@ -14,6 +14,7 @@ from .serializers import RestaurantsSerializer, MenuSerializer, MenuDetailSerial
 
 # ---------------- RESTAURANTS ----------------
 
+
 @extend_schema(tags=["Restaurants"])
 class RestaurantsView(ListCreateAPIView):
     """
@@ -21,6 +22,7 @@ class RestaurantsView(ListCreateAPIView):
     - Owners: list their restaurants and create new ones.
     - Customers: list all available restaurants.
     """
+
     queryset = Restaurants.objects.all()
     serializer_class = RestaurantsSerializer
     permission_classes = [AllowAny]
@@ -50,13 +52,17 @@ class RestaurantsView(ListCreateAPIView):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        if Restaurants.objects.filter(owner=user, name=request.data.get("name")).exists():
+        if Restaurants.objects.filter(
+            owner=user, name=request.data.get("name")
+        ).exists():
             return Response(
                 {"msg": "You already have a restaurant", "status": False},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        serializer = self.get_serializer(data=request.data, context={"request": request})
+        serializer = self.get_serializer(
+            data=request.data, context={"request": request}
+        )
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(
@@ -70,6 +76,7 @@ class RestaurantsView(ListCreateAPIView):
 
 
 # ---------------- RESTAURANT DETAIL ----------------
+
 
 @extend_schema(tags=["Restaurants"])
 class RestaurantsDetailView(RetrieveUpdateDestroyAPIView):
@@ -87,14 +94,22 @@ class RestaurantsDetailView(RetrieveUpdateDestroyAPIView):
     def retrieve(self, request, *args, **kwargs):
         response = super().retrieve(request, *args, **kwargs)
         return Response(
-            {"msg": "Restaurant retrieved successfully", "data": response.data, "status": True},
+            {
+                "msg": "Restaurant retrieved successfully",
+                "data": response.data,
+                "status": True,
+            },
             status=status.HTTP_200_OK,
         )
 
     def update(self, request, *args, **kwargs):
         response = super().update(request, *args, **kwargs)
         return Response(
-            {"msg": "Restaurant updated successfully", "data": response.data, "status": True},
+            {
+                "msg": "Restaurant updated successfully",
+                "data": response.data,
+                "status": True,
+            },
             status=status.HTTP_200_OK,
         )
 
@@ -108,6 +123,7 @@ class RestaurantsDetailView(RetrieveUpdateDestroyAPIView):
 
 # ---------------- MENU ----------------
 
+
 @extend_schema(tags=["Menu"])
 class MenuView(ListCreateAPIView):
     """
@@ -115,6 +131,7 @@ class MenuView(ListCreateAPIView):
     - Owners: create and list menus of their restaurant.
     - Customers: list menu items (read-only).
     """
+
     permission_classes = [AllowAny]
     serializer_class = MenuDetailSerializer
 
@@ -148,17 +165,24 @@ class MenuView(ListCreateAPIView):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        restaurant = get_object_or_404(Restaurants, pk=self.kwargs.get("pk"), owner=request.user)
+        restaurant = get_object_or_404(
+            Restaurants, pk=self.kwargs.get("pk"), owner=request.user
+        )
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(restaurant=restaurant)
         return Response(
-            {"msg": "Menu item created successfully", "data": serializer.data, "status": True},
+            {
+                "msg": "Menu item created successfully",
+                "data": serializer.data,
+                "status": True,
+            },
             status=status.HTTP_201_CREATED,
         )
 
 
 # ---------------- MENU DETAIL ----------------
+
 
 @extend_schema(tags=["Menu"])
 class MenuDetailView(RetrieveUpdateDestroyAPIView):
@@ -181,7 +205,11 @@ class MenuDetailView(RetrieveUpdateDestroyAPIView):
     def retrieve(self, request, *args, **kwargs):
         response = super().retrieve(request, *args, **kwargs)
         return Response(
-            {"msg": "Menu item retrieved successfully", "data": response.data, "status": True},
+            {
+                "msg": "Menu item retrieved successfully",
+                "data": response.data,
+                "status": True,
+            },
             status=status.HTTP_200_OK,
         )
 
@@ -194,7 +222,11 @@ class MenuDetailView(RetrieveUpdateDestroyAPIView):
             )
         response = super().update(request, *args, **kwargs)
         return Response(
-            {"msg": "Menu item updated successfully", "data": response.data, "status": True},
+            {
+                "msg": "Menu item updated successfully",
+                "data": response.data,
+                "status": True,
+            },
             status=status.HTTP_200_OK,
         )
 
