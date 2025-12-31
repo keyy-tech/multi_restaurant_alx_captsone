@@ -8,12 +8,15 @@ class CustomBaseUserManager(BaseUserManager):
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
+        # Ensure regular users are active by default (optional)
+        user.is_active = extra_fields.get("is_active", True)
         user.save(using=self._db)
         return user
 
     def create_superuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
+        extra_fields.setdefault("is_active", True)  # MUST set this
         extra_fields.setdefault("role", "owner")
 
         if extra_fields.get("is_staff") is not True:

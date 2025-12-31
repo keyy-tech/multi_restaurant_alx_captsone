@@ -80,7 +80,6 @@ class SuperUserSerializer(serializers.ModelSerializer):
         return user
 
 
-
 class UpdateRoleSerializers(serializers.ModelSerializer):
     class Meta:
         model = User
