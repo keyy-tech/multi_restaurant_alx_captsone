@@ -38,7 +38,7 @@ DEBUG = os.getenv("DEBUG") == "True"
 
 ALLOWED_HOSTS = [
     "multi-restaurant-alx-captsone.onrender.com",
-    "https://restaurant.keyytech.me/",
+    "restaurant.keyytech.me",
 ]
 
 
