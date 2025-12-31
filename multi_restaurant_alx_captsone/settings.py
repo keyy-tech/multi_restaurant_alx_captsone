@@ -37,8 +37,8 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = os.getenv("DEBUG") == "True"
 
 ALLOWED_HOSTS = [
-    "https://multi-restaurant-alx-captsone.onrender.com/",
-    "www.mydomain.com",
+    "multi-restaurant-alx-captsone.onrender.com",
+    "https://restaurant.keyytech.me/",
 ]
 
 
