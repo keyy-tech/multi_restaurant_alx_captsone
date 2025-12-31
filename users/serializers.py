@@ -12,12 +12,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "date_of_birth",
             "phone_number",
         ]
-        read_only_fields = ["user"]
+        read_only_fields = ["user"]  # user is managed automatically
 
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
-    user_profile = UserProfileSerializer()
+    user_profile = UserProfileSerializer(required=False)  # optional
 
     class Meta:
         model = User
@@ -29,22 +29,25 @@ class UserSerializer(serializers.ModelSerializer):
             "user_profile",
             "password",
         ]
-        read_only_fields = ["id", "is_active", "is_staff", "is_superuser", "password"]
+        read_only_fields = ["id", "is_active", "is_staff", "is_superuser"]
 
     def create(self, validated_data):
+        user_profile_data = validated_data.pop("user_profile", None)
+        password = validated_data.pop("password")
+
         with transaction.atomic():
-            user_profile_data = validated_data.pop("user_profile", None)
-            password = validated_data.pop("password")
-            user = User.objects.create_user(**validated_data)
-            user.set_password(password)
-            user.save()
-            UserProfile.objects.create(user=user, **user_profile_data)
+            # create user and hash password automatically
+            user = User.objects.create_user(password=password, **validated_data)
+
+            if user_profile_data:
+                UserProfile.objects.create(user=user, **user_profile_data)
+
         return user
 
 
 class SuperUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
-    user_profile = UserProfileSerializer()
+    user_profile = UserProfileSerializer(required=False)
 
     class Meta:
         model = User
@@ -56,20 +59,23 @@ class SuperUserSerializer(serializers.ModelSerializer):
             "user_profile",
             "password",
         ]
-        read_only_fields = ["id", "is_active", "is_staff", "is_superuser", "password"]
+        read_only_fields = ["id", "is_active", "is_staff", "is_superuser"]
 
     def create(self, validated_data):
+        user_profile_data = validated_data.pop("user_profile", None)
+        password = validated_data.pop("password")
+
         with transaction.atomic():
-            user_profile_data = validated_data.pop("user_profile", None)
-            password = validated_data.pop("password")
-            user = User.objects.create_superuser(**validated_data)
-            user.set_password(password)
-            user.save()
-            UserProfile.objects.create(user=user, **user_profile_data)
+            # create superuser and hash password automatically
+            user = User.objects.create_superuser(password=password, **validated_data)
+
+            if user_profile_data:
+                UserProfile.objects.create(user=user, **user_profile_data)
+
         return user
 
 
-class UpdateRoleSerializers(serializers.ModelSerializer):
+class UpdateRoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["role"]

@@ -1,6 +1,5 @@
 from drf_spectacular.utils import extend_schema
-from rest_framework import generics
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.generics import (
     CreateAPIView,
     UpdateAPIView,
@@ -13,41 +12,23 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from .models import User, UserProfile
-from .serializers import UserSerializer, UpdateRoleSerializers, UserProfileSerializer
+from .serializers import (
+    UserSerializer,
+    SuperUserSerializer,
+    UpdateRoleSerializers,
+    UserProfileSerializer,
+)
 
 
+# ---------------------------
+# User Registration
+# ---------------------------
 @extend_schema(
-    request={
-        "application/json": {
-            "type": "object",
-            "properties": {
-                "email": {"type": "string"},
-                "password": {"type": "string"},
-                "first_name": {"type": "string"},
-                "last_name": {"type": "string"},
-                "user_profile": {
-                    "type": "object",
-                    "properties": {
-                        "other_name": {"type": "string"},
-                        "date_of_birth": {"type": "string", "format": "date"},
-                        "phone_number": {"type": "string"},
-                    },
-                },
-            },
-        }
-    },
+    request={...},  # Keep your existing extend_schema definition
     tags=["Users"],
     summary="Register a new user account",
 )
 class UserRegistrationView(CreateAPIView):
-    """
-    API endpoint for registering a new user account.
-
-    POST:
-        Creates a new user along with an associated user profile.
-        Returns the created user data along with a success message.
-    """
-
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
@@ -62,38 +43,31 @@ class UserRegistrationView(CreateAPIView):
         return Response(data, status=status.HTTP_201_CREATED)
 
 
+# ---------------------------
+# User Update / Retrieve / Delete
+# ---------------------------
 @extend_schema(
     tags=["Users"], summary="Retrieve, update, or delete the authenticated user"
 )
 class UserUpdateView(RetrieveUpdateDestroyAPIView):
-    """
-    API endpoint for retrieving, updating, or deleting the authenticated user.
-
-    GET:
-        Retrieve the current user's details.
-    PATCH/PUT:
-        Update the current user's profile information.
-    DELETE:
-        Delete the authenticated user account.
-    """
-
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        user = self.request.user
-        return user
+        return self.request.user
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
-        data = {
-            "msg": "User retrieved successfully",
-            "data": serializer.data,
-            "status": True,
-        }
-        return Response(data, status=status.HTTP_200_OK)
+        return Response(
+            {
+                "msg": "User retrieved successfully",
+                "data": serializer.data,
+                "status": True,
+            },
+            status=status.HTTP_200_OK,
+        )
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -112,13 +86,15 @@ class UserUpdateView(RetrieveUpdateDestroyAPIView):
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         instance.delete()
-        data = {
-            "msg": "User deleted successfully",
-            "status": True,
-        }
-        return Response(data, status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {"msg": "User deleted successfully", "status": True},
+            status=status.HTTP_204_NO_CONTENT,
+        )
 
 
+# ---------------------------
+# UserProfile Update
+# ---------------------------
 @extend_schema(tags=["Users"], summary="Update the authenticated user's profile")
 class UserProfileUpdateAPIView(UpdateAPIView):
     queryset = UserProfile.objects.all()
@@ -126,29 +102,25 @@ class UserProfileUpdateAPIView(UpdateAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self):
-        user = self.request.user
-        return user.user_profile
+        return self.request.user.user_profile
 
     def update(self, request, *args, **kwargs):
         response = super().update(request, *args, **kwargs)
-        data = {
-            "msg": "User profile updated successfully",
-            "data": response.data,
-            "status": True,
-        }
-        return Response(data, status=status.HTTP_200_OK)
+        return Response(
+            {
+                "msg": "User profile updated successfully",
+                "data": response.data,
+                "status": True,
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
+# ---------------------------
+# Admin Update Role
+# ---------------------------
 @extend_schema(tags=["Users"], summary="Admin update a user's role")
 class AdminUpdateRoleView(UpdateAPIView):
-    """
-    API endpoint for admin users to update a user's role.
-
-    PATCH/PUT:
-        Updates the role of a specified user by user_id.
-        Ensures the role cannot be updated if the user is already an owner.
-    """
-
     queryset = User.objects.all()
     serializer_class = UpdateRoleSerializers
     permission_classes = [IsAdminUser]
@@ -161,33 +133,23 @@ class AdminUpdateRoleView(UpdateAPIView):
         instance = self.get_object()
         if instance.role == "owner":
             return Response(
-                {
-                    "msg": "User is already an owner.",
-                    "status": False,
-                },
+                {"msg": "User is already an owner.", "status": False},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         response = super().update(request, *args, **kwargs)
-        data = {
-            "msg": "Role updated successfully",
-            "data": response.data,
-            "status": True,
-        }
-        return Response(data, status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {"msg": "Role updated successfully", "data": response.data, "status": True},
+            status=status.HTTP_200_OK,
+        )
 
 
+# ---------------------------
+# JWT Views
+# ---------------------------
 @extend_schema(
     tags=["Authentication"], summary="Obtain a JWT access and refresh token pair"
 )
 class CustomTokenObtainPairView(TokenObtainPairView):
-    """
-    API endpoint to obtain a JWT access and refresh token pair.
-
-    POST:
-        Requires 'email' and 'password'.
-        Returns an access token and a refresh token for authentication.
-    """
-
     pass
 
 
@@ -195,34 +157,34 @@ class CustomTokenObtainPairView(TokenObtainPairView):
     tags=["Authentication"], summary="Refresh a JWT access token using a refresh token"
 )
 class CustomTokenRefreshView(TokenRefreshView):
-    """
-    API endpoint to refresh a JWT access token using a refresh token.
-
-    POST:
-        Requires 'refresh' token in the request body.
-        Returns a new access token.
-    """
-
     pass
 
 
+# ---------------------------
+# SuperUser Creation
+# ---------------------------
 @extend_schema(tags=["Super Users"], summary="Create a new superuser account")
 class CreateSuperUserView(CreateAPIView):
     permission_classes = [AllowAny]
-    serializer_class = UserSerializer
+    serializer_class = SuperUserSerializer
 
     def create(self, request: Request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        data = {
-            "msg": "You have successfully being created as a superuser",
-            "data": serializer.data,
-            "status": True,
-        }
-        return Response(data, status=status.HTTP_201_CREATED)
+        return Response(
+            {
+                "msg": "You have successfully been created as a superuser",
+                "data": serializer.data,
+                "status": True,
+            },
+            status=status.HTTP_201_CREATED,
+        )
 
 
+# ---------------------------
+# List All Users
+# ---------------------------
 @extend_schema(tags=["Super Users"], summary="List all users (admin only)")
 class ListUsersView(ListAPIView):
     queryset = User.objects.all()
@@ -231,14 +193,19 @@ class ListUsersView(ListAPIView):
 
     def list(self, request: Request, *args, **kwargs):
         response = super().list(request, *args, **kwargs)
-        data = {
-            "msg": "Users retrieved successfully",
-            "data": response.data,
-            "status": True,
-        }
-        return Response(data, status=status.HTTP_200_OK)
+        return Response(
+            {
+                "msg": "Users retrieved successfully",
+                "data": response.data,
+                "status": True,
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
+# ---------------------------
+# Update / Retrieve / Delete SuperUser
+# ---------------------------
 @extend_schema(
     tags=["Super Users"],
     summary="Retrieve, update, or delete the authenticated superuser",
@@ -249,36 +216,38 @@ class UpdateRetrieveDestroySuperUserView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdminUser]
 
     def get_object(self):
-        user = self.request.user
-        return user.user_profile
+        return self.request.user  # Return User, not UserProfile
 
     def retrieve(self, request: Request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
-        data = {
-            "msg": "User retrieved successfully",
-            "data": serializer.data,
-            "status": True,
-        }
-        return Response(data, status=status.HTTP_200_OK)
+        return Response(
+            {
+                "msg": "User retrieved successfully",
+                "data": serializer.data,
+                "status": True,
+            },
+            status=status.HTTP_200_OK,
+        )
 
     def update(self, request: Request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        data = {
-            "msg": "User updated successfully",
-            "data": serializer.data,
-            "status": True,
-        }
-        return Response(data, status=status.HTTP_200_OK)
+        return Response(
+            {
+                "msg": "User updated successfully",
+                "data": serializer.data,
+                "status": True,
+            },
+            status=status.HTTP_200_OK,
+        )
 
     def destroy(self, request: Request, *args, **kwargs):
         instance = self.get_object()
         instance.delete()
-        data = {
-            "msg": "User deleted successfully",
-            "status": True,
-        }
-        return Response(data, status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {"msg": "User deleted successfully", "status": True},
+            status=status.HTTP_204_NO_CONTENT,
+        )
