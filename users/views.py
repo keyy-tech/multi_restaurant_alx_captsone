@@ -169,13 +169,11 @@ class CreateSuperUserView(CreateAPIView):
     serializer_class = SuperUserSerializer
 
     def create(self, request: Request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+        response = super().create(request, *args, **kwargs)
         return Response(
             {
                 "msg": "You have successfully been created as a superuser",
-                "data": serializer.data,
+                "data": response.data,
                 "status": True,
             },
             status=status.HTTP_201_CREATED,

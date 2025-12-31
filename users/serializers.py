@@ -69,10 +69,16 @@ class SuperUserSerializer(serializers.ModelSerializer):
             # create superuser and hash password automatically
             user = User.objects.create_superuser(password=password, **validated_data)
 
+            # ensure superuser is active
+            user.is_active = True
+            user.save()
+
+            # create nested profile if provided
             if user_profile_data:
                 UserProfile.objects.create(user=user, **user_profile_data)
 
         return user
+
 
 
 class UpdateRoleSerializers(serializers.ModelSerializer):
