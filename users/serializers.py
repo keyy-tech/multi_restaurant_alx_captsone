@@ -75,7 +75,7 @@ class SuperUserSerializer(serializers.ModelSerializer):
         return user
 
 
-class UpdateRoleSerializer(serializers.ModelSerializer):
+class UpdateRoleSerializers(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["role"]
